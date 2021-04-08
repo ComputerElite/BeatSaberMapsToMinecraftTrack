@@ -17,5 +17,12 @@ _Beat SaberMap version 2.0.0 is supported natively_
 4. Open the chat and type the command: `/bs [path]` where you replace `[path]` with the location of the file you generated earlier under [Generate all Commands](#generate-all-commands) and wait until the plugin says you it has finished (please note that this will spam your server console and chat if you are op a lot)
 5. Enjoy your ride
 
+## Install the ressource pack
+**Based onthe PureBDCraft texture pack from [bdcraft.net](https://bdcraft.net/)**
+1. Get the ressource pack from the [releases section](https://github.com/ComputerElite/BeatSaberMapsToMinecraftTrack/releases)
+2. copy it to `%appdata%\.minecraft`
+3. then select it in-game
+_without the ressource pack it might look wierd_
+
 
 _Source code will be added once I finished. this might take a few days_
