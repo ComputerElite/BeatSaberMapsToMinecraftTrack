@@ -4,7 +4,7 @@ _Beat SaberMap version 2.0.0 is supported natively_
 
 # Usage
 ## Generate all Commands
-1. Start the program
+1. Start the program (which is under the [releases section](https://github.com/ComputerElite/BeatSaberMapsToMinecraftTrack/releases))
 2. Drag and drop info.dat of your song in
 3. Then any difficulty file (as long as it's not a noddle or mapping extension one) from the song
 5.  press `y` if you want destroyable blocks (a bit like in the [BeatCraft Videos](https://www.youtube.com/watch?v=Wm0wFAJr1Xo)) and it'll start generating and should finish within about a few seconds.
