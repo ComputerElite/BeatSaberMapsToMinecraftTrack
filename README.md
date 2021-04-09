@@ -23,3 +23,6 @@ _Beat SaberMap version 2.0.0 is supported natively_
 2. copy it to `%appdata%\.minecraft`
 3. then select it in-game
 _without the ressource pack it might look wierd_
+
+
+_Beat Saber Map format information from the [BSMG wiki](https://bsmg.wiki/mapping/map-format.html)_
