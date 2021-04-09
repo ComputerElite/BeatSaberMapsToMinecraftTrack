@@ -1,0 +1,6 @@
+name: CommandExecutor
+version: 0.1.0
+main: de.ComputerElite.CommandExecutor.commands.main
+
+commands:
+   bs:
