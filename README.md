@@ -11,7 +11,7 @@ _Beat SaberMap version 2.0.0 is supported natively_
 6.  Finally fill in where the finished file should be and hit enter to save it to disk.
 
 ## Place all blocks
-1. [Start/Setup a minecraft 1.13 (and up) spigot server](https://www.spigotmc.org/wiki/spigot-installation/) with a flat world (in server.properties change `level-type` to `flat`).
+1. [Start/Setup a minecraft 1.13 (and up) spigot server](https://www.spigotmc.org/wiki/spigot-installation/) (tested on 1.16.5) with a flat world (in server.properties change `level-type` to `flat`).
 2. Add the CommandExecutor plugin (which is under the [releases section](https://github.com/ComputerElite/BeatSaberMapsToMinecraftTrack/releases)) to your server. (You do this by copying the jar file to the plugins folder next to your server)
 3. Go to the coordinates 0, 5, 0 (this is the origin of the world where the track will be placed)
 4. Open the chat and type the command: `/bs [path]` where you replace `[path]` with the location of the file you generated earlier under [Generate all Commands](#generate-all-commands) and wait until the plugin says you it has finished (please note that this will spam your server console and chat if you are op a lot)
