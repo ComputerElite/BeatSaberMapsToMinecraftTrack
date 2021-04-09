@@ -214,8 +214,11 @@ namespace BeatSaberMap_to_MCMap
                     }
                 }
             }
-                
-            File.WriteAllText("D:\\bs.txt", w.ToString());
+            String ofile = "D:\\bs.txt";
+            Console.Write("Output file: ");
+            String c = Console.ReadLine();
+            ofile = c == "" ? ofile : c;
+            File.WriteAllText(ofile, w.ToString());
             s.Stop();
             
             
