@@ -24,5 +24,16 @@ _Beat SaberMap version 2.0.0 is supported natively_
 3. then select it in-game
 _without the ressource pack it might look wierd_
 
+# Goal/Status
+**Make it look something like [this video on YouTube](https://www.youtube.com/watch?v=sJXrCyL0eMQ) (well at least a more simple version).**
+
+# Roadpoints (might never finish)
+- [x] Reading Beat Saber Maps
+- [x] Create minecraft plugin to execute commands
+- [ ] I need ideas for stuff I can trigger (just started and creativity isn't there)
+- [ ] Map the ideas above to the beatmap events (not started)
+- [ ] Actually write the code to place everything (not started)
+- [ ] Add music playing (low piority)
+
 
 _Beat Saber Map format information from the [BSMG wiki](https://bsmg.wiki/mapping/map-format.html)_
