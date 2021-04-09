@@ -34,6 +34,7 @@ _without the ressource pack it might look wierd_
 - [ ] Map the ideas above to the beatmap events (not started)
 - [ ] Actually write the code to place everything (not started)
 - [ ] Add music playing (low piority)
+- [ ] Generate minecraft maps with generator and not commands to execute (really low piority)
 
 
 _Beat Saber Map format information from the [BSMG wiki](https://bsmg.wiki/mapping/map-format.html)_
