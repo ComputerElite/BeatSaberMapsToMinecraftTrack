@@ -32,7 +32,7 @@ _without the ressource pack it might look wierd_
 - [x] Create minecraft plugin to execute commands
 - [ ] I need ideas for stuff I can trigger (just started and creativity isn't there)
 - [ ] Map the ideas above to the beatmap events (not started)
-- [ ] Actually write the code to place everything (includes object aware palcement; preparing)
+- [x] Actually write the code to place everything (includes object aware palcement; in progress)
 - [ ] Add playing into normal world (aka make room around the structures; low piority)
 - [ ] Add music playing (low piority)
 - [ ] Generate minecraft maps with generator and not commands to execute (really low piority)
