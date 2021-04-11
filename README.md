@@ -2,6 +2,9 @@
 A Program to convert Beat Saber Custom Levels to a minecart track in minecraft. 
 _Beat SaberMap version 2.0.0 is supported natively_
 
+# Info
+Originally it was planned to use redstone stuff for stuff but redstone connections are a pain to make not cross so I'm using mainly command blocks now.
+
 # Usage
 ## Generate all Commands
 1. Start the program (which is under the [releases section](https://github.com/ComputerElite/BeatSaberMapsToMinecraftTrack/releases))
@@ -30,10 +33,10 @@ _without the ressource pack it might look wierd_
 # Roadpoints (might never finish)
 - [x] Reading Beat Saber Maps
 - [x] Create minecraft plugin to execute commands
-- [ ] I need ideas for stuff I can trigger (just started and creativity isn't there)
-- [ ] Map the ideas above to the beatmap events (not started)
-- [x] Actually write the code to place everything (includes object aware palcement; in progress)
-- [ ] Add playing into normal world (aka make room around the structures; low piority)
+- [ ] I need ideas for stuff I can trigger (in progress)
+- [ ] Map the ideas above to the beatmap events (in progress)
+- [ ] Actually write the code to place everything (includes object aware palcement; almost finished)
+- [ ] Add playing into normal world (aka make air blocks around the structures; low piority)
 - [ ] Add music playing (low piority)
 - [ ] Generate minecraft maps with generator and not commands to execute (really low piority)
 
