@@ -4,6 +4,7 @@ _Beat SaberMap version 2.0.0 is supported natively_
 
 # Info
 Originally it was planned to use redstone stuff for stuff but redstone connections are a pain to make not cross so I'm using mainly command blocks now.
+**Stil under development! Check status under [#goal](#goal)**
 
 # Usage
 ## Generate all Commands
