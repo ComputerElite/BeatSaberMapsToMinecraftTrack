@@ -1,6 +1,6 @@
 ﻿namespace Vectors
 {
-    public class Vector3
+    public struct Vector3
     {
         public int x { get; set; }
         public int y { get; set; }

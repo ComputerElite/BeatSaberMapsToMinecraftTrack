@@ -77,6 +77,13 @@ namespace BeatSaber
             return "red";
         }
 
+        public int GetHexColor()
+        {
+            if (redValues.Contains(this._value)) return 0xFF0000;
+            else if (blueValues.Contains(this._value)) return 0x0000FF;
+            return 0xFF0000;
+        }
+
         public bool ShouldLightFlash()
         {
             if (flashValues.Contains(this._value)) return true;

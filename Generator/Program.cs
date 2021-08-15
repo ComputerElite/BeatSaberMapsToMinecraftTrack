@@ -1,6 +1,7 @@
 ﻿using BeatSaber;
 using BeatSaverAPI;
 using Minecraft;
+using Objects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +11,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Vectors;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////// to-do: fix command block offset////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace BeatSaberMap_to_MCMap
 {
@@ -30,7 +33,7 @@ namespace BeatSaberMap_to_MCMap
             if(info == "")
             {
                 Console.WriteLine("Generating empty quader");
-                for (int h = 4; h < 20; h++)
+                for (int h = 0; h < 20; h++)
                 {
                     for (int wi = -10; wi < 10; wi++)
                     {
@@ -75,150 +78,203 @@ namespace BeatSaberMap_to_MCMap
                 secsOffset = infodat._songTimeOffset;
 
                 beatSecondRatio = 60.0m / infodat.BPM;
+                ObjectPlacer p = new ObjectPlacer((int)Math.Ceiling((maxBeat * beatSecondRatio + secsOffset) * bps));
+
+                LightController l = new LightController();
+                Console.WriteLine("Generating Blocks for " + diffdat._events.Count + " Events");
+                Random r = new Random();
+                int lastRingSpin = 0;
+                bool StartRingSpinRailOffsetAdjustment = false;
+                foreach (Event e in diffdat._events)
+                {
+                    int block = GetBlockFromBeat(e._time);
+                    if (e._type == 8)
+                    {
+                        if (lastRingSpin != 0 && StartRingSpinRailOffsetAdjustment)
+                        {
+                            StartRingSpinRailOffsetAdjustment = false;
+                            int length = block - lastRingSpin;
+                            int segmentLength = (int)Math.Floor(length / 2.0);
+                            //if (length == segmentLength) segmentLength = segmentLength - 2;
+                            int fillLength = length - segmentLength * 2;
+                            for (int i = 1; i <= segmentLength; i++)
+                            {
+                                p.SetYOffset(i + lastRingSpin, i);
+                                p.SetYOffset(block - i, i);
+                            }
+                            for (int i = 0; i < fillLength; i++)
+                            {
+                                p.SetYOffset(i + lastRingSpin + segmentLength, segmentLength);
+                            }
+                        } else StartRingSpinRailOffsetAdjustment = true;
+
+                        lastRingSpin = block;
+                        //Creates one ring spin in the environment. Is not affected by _value.
+                    }
+                }
+
+
                 Console.WriteLine("Generating rails for " + maxBeat + " beats");
                 for (int i = 0; i < (maxBeat * beatSecondRatio + secsOffset) * bps; i++)
                 {
-                    w.AddBlock(new Block(0, railHeight, i,  "stone replace"));
-                    w.AddBlock(new Block(0, railHeight + 1, i, i % 2 == 0 ? "powered_rail replace" : "detector_rail replace"));
+                    w.AddBlock(new Block(0, railHeight + p.GetYOffset(i), i,  "stone"));
+                    w.AddBlock(new Block(0, railHeight + 1 + p.GetYOffset(i), i, i % 2 == 0 ? "powered_rail[shape=ascending_" + (p.GetYOffset(i - 1 < 0 ? 0 : i - 1) < p.GetYOffset(i) ? "south" : "north") + "]" : "detector_rail[shape=ascending_" + (p.GetYOffset(i - 1 < 0 ? 0 : i - 1) < p.GetYOffset(i) ? "south" : "north") + "]"));
+                    if (i % 2 == 0)  w.AddBlock(new Block(1, railHeight + 1 + p.GetYOffset(i), i, "redstone_torch"));
                 }
-                if(beatcraft)
+
+                foreach (Event e in diffdat._events)
                 {
-                    Console.WriteLine("Generating blocks for " + diffdat._notes.Count + " Notes");
-                    foreach (Note n in diffdat._notes)
-                    {
-                        Block b = new Block();
-                        b.x = xStart + n._lineIndex;
-                        b.y = yStart + n._lineLayer;
-                        b.z = GetBlockFromBeat(n._time);
-                        b.block = n._type == 0 ? "dandelion" : "blue_orchid";
-                        if (b.block.Contains("powder"))
-                        {
-                            w.InsertBlock(0, new Block(b.x, b.y - 1, b.z, "barrier replace"));
-                        }
-                        w.AddBlock(b);
-                    }
-                } else
-                {
-                    Console.WriteLine("Generating blocks for " + diffdat._obstacles.Count + " obstacles");
-                    foreach (Obstacle o in diffdat._obstacles)
-                    {
-                        List<int> heights = new List<int>();
-                        heights.Add(yStart + 1);
-                        heights.Add(yStart + 2);
-                        if (o._type == 0) heights.Add(yStart);
+                    int block = GetBlockFromBeat(e._time);
 
-                        List<int> widths = new List<int>();
-                        for (int i = 0; i < o._width; i++)
-                        {
-                            widths.Add(xStart + o._lineIndex + i);
-                        }
-                        List<Vector2> flat = new List<Vector2>();
-                        foreach (int h in heights)
-                        {
-                            foreach (int wi in widths)
-                            {
-                                flat.Add(new Vector2(wi, h));
-                            }
-                        }
-                        int durationInBlocks = (int)Math.Round(o._duration * beatSecondRatio * bps);
-                        int baseBlock = GetBlockFromBeat(o._time);
-                        foreach (Vector2 v in flat)
-                        {
-                            for (int i = 0; i < durationInBlocks; i++)
-                            {
-                                w.AddBlock(new Block(v.x, v.y, baseBlock + i, "red_stained_glass keep"));
-                            }
-
-                        }
-                    }
-                    Console.WriteLine("Generating blocks for " + diffdat._notes.Count + " Notes");
-                    foreach (Note n in diffdat._notes)
+                    if (e._type == 0)
                     {
-                        Block b = new Block();
-                        b.x = xStart + n._lineIndex;
-                        b.y = yStart + n._lineLayer;
-                        b.z = GetBlockFromBeat(n._time);
-                        b.block = n.GetBlock();
-                        if (b.block.Contains("powder"))
-                        {
-                            w.InsertBlock(0, new Block(b.x, b.y - 1, b.z, "barrier replace"));
-                        }
-                        w.AddBlock(b);
+                        //Controls lights in the Back Lasers group.
                     }
-
-                    LightController l = new LightController();
-                    Console.WriteLine("Generating Blocks for " + diffdat._events.Count + " Events");
-                    foreach (Event e in diffdat._events)
+                    else if (e._type == 1)
                     {
-                        if (e._type == 0)
-                        {
-                            //Controls lights in the Back Lasers group.
-                        }
-                        else if (e._type == 1)
-                        {
-                            //Controls lights in the Ring Lights group.
-                        }
-                        else if (e._type == 2)
-                        {
-                            //Controls lights in the Left Rotating Lasers group.
-                            l.leftLightsColor = e.GetValueColor();
-                            if (e.ShouldLightFlash())
-                            {
-                                int block = GetBlockFromBeat(e._time);
-                                if (block - l.lastLeftLights < 13) continue;
-                                l.lastLeftLights = block;
-                                w.PlaceStructure(Structure.ConcretePowerLauncher(), new Vector3(2, railHeight - 3, block + 7));
-                                w.PlaceStructure(Structure.RedstoneConnection(new Vector3(0, railHeight - 1, block % 2 == 0 ? block - 1 : block), new Vector3(2, railHeight - 3, block + 6)), new Vector3(0, railHeight - 1, block % 2 == 0 ? block - 1 : block));
-                            }
-                        }
-                        else if (e._type == 3)
-                        {
-                            //Controls lights in the Right Rotating Lasers group.
-                            l.rightLightsColor = e.GetValueColor();
-                            if (e.ShouldLightFlash())
-                            {
-                                int block = GetBlockFromBeat(e._time);
-                                if (block - l.lastRightLights < 13) continue;
-                                l.lastRightLights = block;
-                                w.PlaceStructure(Structure.ConcretePowerLauncher().Mirror(), new Vector3(-2, railHeight - 3, block + 7));
-                                w.PlaceStructure(Structure.RedstoneConnection(new Vector3(0, railHeight - 1, block % 2 == 0 ? block - 1 : block), new Vector3(-2, railHeight - 3, block + 6)), new Vector3(0, railHeight - 1, block % 2 == 0 ? block - 1 : block));
-                            }
-                        }
-                        else if (e._type == 4)
-                        {
-                            //Controls lights in the Center Lights group.
-                            l.centerLightsColor = e.GetValueColor();
-                            if (e.ShouldLightFlash()) w.PlaceStructure(Structure.StaticTracklight().changeColor(l.centerLightsColor), new Vector3(0, railHeight, GetBlockFromBeat(e._time)));
-                        }
-                        else if (e._type == 5)
-                        {
-                            //(Previously unused) Controls boost light colors (secondary colors).
-                        }
-                        else if (e._type == 8)
-                        {
-                            //Creates one ring spin in the environment. Is not affected by _value.
-                        }
-                        else if (e._type == 9)
-                        {
-                            //Controls zoom for applicable rings. Is not affected by _value.
-                        }
-                        //case 10:
-                        //    //(unused)BPM Changes
-                        //    break;
-                        //case 12:
-                        //    //(unused)Controls rotation speed for applicable lights in Left Rotating Lasers.
-                        //    break;
-                        //case 13:
-                        //    //(unused)Controls rotation speed for applicable lights in Right Rotating Lasers.
-                        //    break;
+                        //Controls lights in the Ring Lights group.
                     }
+                    else if (e._type == 2)
+                    {
+                        //Controls lights in the Left Rotating Lasers group.
+                        int nearestRail = ObjectPlacer.GetNearestRailZ(block);
+                        if (nearestRail < 0) nearestRail = 1;
+                        
+                        if (e.ShouldLightFlash())
+                        {
+                            int yOffset = p.GetYOffsetCommandBlock(nearestRail);
+                            w.AddBlock(Block.CommandBlock(Commands.GetFireworkSpawnCommand(20, 1, 0, e.GetHexColor(), r.Next(-5, -1), railHeight + r.Next(-5, 1) + p.GetYOffset(block), block + 8), 0, railHeight + yOffset + p.GetYOffset(nearestRail), nearestRail, yOffset == -1));
+                        }
+                        else if (e.ShouldLightsStayOn())
+                        {
+                            int yOffset = p.GetYOffsetCommandBlock(nearestRail);
+                            w.AddBlock(Block.CommandBlock(Commands.GetFireworkSpawnCommand(20, 1, r.Next(1, 3), e.GetHexColor(), r.Next(-5, -1), railHeight + r.Next(-5, 1) + p.GetYOffset(block), block + 8), 0, railHeight + yOffset + p.GetYOffset(nearestRail), nearestRail, yOffset == -1));
+                        }
+                    }
+                    else if (e._type == 3)
+                    {
+                        //Controls lights in the Right Rotating Lasers group.
+                        int nearestRail = ObjectPlacer.GetNearestRailZ(block);
+                        if (nearestRail < 0) nearestRail = 1;
+                        if (e.ShouldLightFlash())
+                        {
+                            int yOffset = p.GetYOffsetCommandBlock(nearestRail);
+                            w.AddBlock(Block.CommandBlock(Commands.GetFireworkSpawnCommand(20, 1, 0, e.GetHexColor(), r.Next(1, 5), railHeight + r.Next(-5, 1) + p.GetYOffset(block), block + 8), 0, railHeight + yOffset + p.GetYOffset(nearestRail), nearestRail, yOffset == -1));
+                        }
+                        else if (e.ShouldLightsStayOn())
+                        {
+                            int yOffset = p.GetYOffsetCommandBlock(nearestRail);
+                            w.AddBlock(Block.CommandBlock(Commands.GetFireworkSpawnCommand(20, 1, r.Next(1, 3), e.GetHexColor(), r.Next(1, 5), railHeight + r.Next(-5, 1) + p.GetYOffset(block), block + 8), 0, railHeight + yOffset + p.GetYOffset(nearestRail), nearestRail, yOffset == -1));
+                        }
+                    }
+                    else if (e._type == 4)
+                    {
+                        //Controls lights in the Center Lights group aka lane light.
+                        int nearestRail = ObjectPlacer.GetNearestRailZ(block - 15);
+                        if (nearestRail < 0) nearestRail = 1;
+                        if (e.ShouldLightFlash())
+                        {
+                            int yOffset = p.GetYOffsetCommandBlock(nearestRail);
+                            w.AddBlock(Block.CommandBlock(Commands.FallingBlock(ObjectPlacer.GetRailType(block), 0, 21 + railHeight + p.GetYOffset(block), block), 0, railHeight + yOffset + p.GetYOffset(nearestRail), nearestRail, yOffset == -1));
+                            w.AddBlock(new Block(0, railHeight + 1 + p.GetYOffset(block), block, "air"));
+                        }
+                    }
+                    else if (e._type == 5)
+                    {
+                        //(Previously unused) Controls boost light colors (secondary colors).
+                    }
+                    else if (e._type == 9)
+                    {
+                        //Controls zoom for applicable rings. Is not affected by _value.
+                    }
+                    //case 10:
+                    //    //(unused)BPM Changes
+                    //    break;
+                    //case 12:
+                    //    //(unused)Controls rotation speed for applicable lights in Left Rotating Lasers.
+                    //    break;
+                    //case 13:
+                    //    //(unused)Controls rotation speed for applicable lights in Right Rotating Lasers.
+                    //    break;
                 }
+
+                //if (beatcraft)
+                //{
+                //    Console.WriteLine("Generating blocks for " + diffdat._notes.Count + " Notes");
+                //    foreach (Note n in diffdat._notes)
+                //    {
+                //        Block b = new Block();
+                //        b.x = xStart + n._lineIndex;
+                //        b.y = yStart + n._lineLayer;
+                //        b.z = GetBlockFromBeat(n._time);
+                //        b.block = n._type == 0 ? "dandelion" : "blue_orchid";
+                //        if (b.block.Contains("powder"))
+                //        {
+                //            w.InsertBlock(0, new Block(b.x, b.y - 1, b.z, "barrier"));
+                //        }
+                //        w.AddBlock(b);
+                //    }
+                //}
+                //else
+                //{
+                //Console.WriteLine("Generating blocks for " + diffdat._obstacles.Count + " obstacles");
+                //foreach (Obstacle o in diffdat._obstacles)
+                //{
+                //    List<int> heights = new List<int>();
+                //    heights.Add(yStart + 1);
+                //    heights.Add(yStart + 2);
+                //    if (o._type == 0) heights.Add(yStart);
+
+                //    List<int> widths = new List<int>();
+                //    for (int i = 0; i < o._width; i++)
+                //    {
+                //        widths.Add(xStart + o._lineIndex + i);
+                //    }
+                //    List<Vector2> flat = new List<Vector2>();
+                //    foreach (int h in heights)
+                //    {
+                //        foreach (int wi in widths)
+                //        {
+                //            flat.Add(new Vector2(wi, h));
+                //        }
+                //    }
+                //    int durationInBlocks = (int)Math.Round(o._duration * beatSecondRatio * bps);
+                //    int baseBlock = GetBlockFromBeat(o._time);
+                //    foreach (Vector2 v in flat)
+                //    {
+                //        for (int i = 0; i < durationInBlocks; i++)
+                //        {
+                //            w.AddBlock(new Block(v.x, v.y, baseBlock + i, "red_stained_glass"));
+                //        }
+
+                //    }
+                //}
+                //Console.WriteLine("Generating blocks for " + diffdat._notes.Count + " Notes");
+                //foreach (Note n in diffdat._notes)
+                //{
+                //    Block b = new Block();
+                //    b.x = xStart + n._lineIndex;
+                //    b.y = yStart + n._lineLayer;
+                //    b.z = GetBlockFromBeat(n._time);
+                //    b.block = n.GetBlock();
+                //    if (b.block.Contains("powder"))
+                //    {
+                //        w.InsertBlock(0, new Block(b.x, b.y - 1, b.z, "barrier replace"));
+                //    }
+                //    w.AddBlock(b);
+                //}
+                w.AddBlock(Block.Sign("Made by a", "Generator by", "ComputerElite", "", -1, railHeight + 1, zStart + 5));
             }
+            
             String ofile = "D:\\bs.txt";
+            s.Stop();
             Console.Write("Output file: ");
             String c = Console.ReadLine();
+            
             ofile = c == "" ? ofile : c;
-            File.WriteAllText(ofile, w.ToString());
+            s.Start();
+            //File.WriteAllText(ofile, w.ToString());
+            w.Save(ofile);
             s.Stop();
             
             

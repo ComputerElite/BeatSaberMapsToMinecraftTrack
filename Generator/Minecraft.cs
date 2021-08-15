@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Vectors;
 
 namespace Minecraft
@@ -29,6 +30,34 @@ namespace Minecraft
         public override string ToString()
         {
             return "setblock " + x + " " + y + " " + z + " " + block;
+        }
+
+        public static Block CommandBlock(String command, int x, int y, int z, bool isImpule)
+        {
+            Block b = new Block();
+            b.x = x;
+            b.y = y;
+            b.z = z;
+            b.block = (isImpule ? "" : "chain_") + "command_block[facing=down]{" + (isImpule ? "" : "auto:1,") + "Command:\"" + command + "\"}";
+            return b;
+        }
+
+        public static Block Sign(String text1, String text2 = "", String text3 = "", String text4 = "", int x = 0, int y = 0, int z = 0)
+        {
+            return new Block(x, y, z, "oak_sign[rotation=8]{Text1:\"" + text1 + "\",Text2:\"" + text2 + "\",Text3:\"" + text3 + "\",Text4:\"" + text4 + "\"}");
+        }
+    }
+
+    public class Commands
+    {
+        public static string FallingBlock(String block, int xStart, int yStart, int zStart)
+        {
+            return "summon falling_block " + xStart + " " + yStart + " " + zStart + " {BlockState:{Name:\\\"" + block + "\\\"},Time:55}";
+        }
+
+        public static string GetFireworkSpawnCommand(int LifeTime, int Flicker, int Type, int Color, int x, int y, int z)
+        {
+            return "summon firework_rocket " + x + " " + y + " " + z + " {LifeTime:" + LifeTime + ",FireworksItem:{id:firework_rocket,Count:1,tag:{Fireworks:{Flight:3,Explosions:[{Type:" + Type + ",Flicker:" + Flicker + ",Trail:0,Colors:[I;11743532]}]}}}}";
         }
     }
 
@@ -93,10 +122,10 @@ namespace Minecraft
             s.AddBlock(new Block(1, -1, 3, "stone"));
             s.AddBlock(new Block(2, 2, 3, "stone"));
             s.AddBlock(new Block(2, 1, 3, "redstone_wall_torch[facing=east]"));
-            s.AddBlock(new Block(2, -1, 3, "repeater[facing=west,delay = 2]"));
+            s.AddBlock(new Block(2, -1, 3, "repeater[facing=west,delay=2]"));
             s.AddBlock(new Block(2, -2, 3, "stone"));
             s.AddBlock(new Block(3, 1, 3, "piston[facing=east]"));
-            s.AddBlock(new Block(3, -1, 3, "repeater[facing=west,delay = 4]"));
+            s.AddBlock(new Block(3, -1, 3, "repeater[facing=west,delay=4]"));
             s.AddBlock(new Block(3, -2, 3, "stone"));
             s.AddBlock(new Block(4, 2, 3, "red_concrete_powder"));
             s.AddBlock(new Block(4, -1, 3, "slime_block"));
@@ -283,14 +312,47 @@ namespace Minecraft
             foreach (Block b in structure.blocks) this.blocks.Add(b);
         }
 
+        public void OffsetBy(Vector3 offset)
+        {
+            foreach (Block b in blocks)
+            {
+                b.x += offset.x;
+                b.y += offset.y;
+                b.z += offset.z;
+            }
+        }
+
         public override string ToString()
         {
             string outp = "";
-            foreach(Block b in blocks)
+            int i = 0;
+            foreach (Block b in blocks)
             {
+                if (i % 10000 == 0) Console.WriteLine(i + " / " + blocks.Count);
                 outp += b.ToString() + "\n";
+                i++;
             }
             return outp;
+        }
+
+        public void Save(string file)
+        {
+            string outp = "";
+            if (File.Exists(file)) File.Delete(file);
+            int i = 0;
+            foreach (Block b in blocks)
+            {
+                if (i % 1000 == 0)
+                {
+                    Console.WriteLine(i + " / " + blocks.Count);
+                    File.AppendAllText(file, outp);
+                    outp = "\n";
+                }
+                outp += b.ToString() + "\n";
+                i++;
+            }
+            Console.WriteLine(i + " / " + blocks.Count);
+            File.AppendAllText(file, outp);
         }
     }
 }
