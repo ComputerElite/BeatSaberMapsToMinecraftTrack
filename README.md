@@ -1,4 +1,5 @@
-# BeatSaberMapsToMinecraftTrack
+> [!WARNING]
+> This repository has moved to Codeberg: https://codeberg.org/kaiya/BeatSaberMapsToMinecraftTrack # BeatSaberMapsToMinecraftTrack
 A Program to convert Beat Saber Custom Levels to a minecart track in minecraft. 
 _Beat SaberMap version 2.0.0 is supported natively_
 
